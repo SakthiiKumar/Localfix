@@ -40,7 +40,7 @@ with st.form("localfix_form"):
 if submit_button and (uploaded_image or user_problem):
     with st.spinner("Analyzing your input..."):
         llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             api_key=GOOGLE_API_KEY,
             temperature=0.3
         )
@@ -75,3 +75,4 @@ Why: ..."""}
         {wrapped_response.replace("Problem Summary", "<span class='highlight'>Problem Summary</span>").replace("Suggested Fixer", "<span class='highlight'>Suggested Fixer</span>").replace("Why", "<span class='highlight'>Why</span>")}
     </div>
     """, unsafe_allow_html=True)
+
