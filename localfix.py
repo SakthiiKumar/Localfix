@@ -6,8 +6,7 @@ import textwrap
 import base64
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.schema import HumanMessage
-
+from langchain_core.messages import HumanMessage
 # Load env
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -75,4 +74,5 @@ Why: ..."""}
         {wrapped_response.replace("Problem Summary", "<span class='highlight'>Problem Summary</span>").replace("Suggested Fixer", "<span class='highlight'>Suggested Fixer</span>").replace("Why", "<span class='highlight'>Why</span>")}
     </div>
     """, unsafe_allow_html=True)
+
 
