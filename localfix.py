@@ -7,6 +7,7 @@ import base64
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
+
 # Load env
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -35,6 +36,7 @@ with st.form("localfix_form"):
     user_problem = st.text_area("Or describe your problem here:", placeholder="E.g., My kitchen sink is leaking...")
     submit_button = st.form_submit_button("🔍 Analyze & Get Help")
 
+
 # ---- Gemini + LangChain (analysis) ----
 if submit_button and (uploaded_image or user_problem):
     with st.spinner("Analyzing your input..."):
@@ -45,34 +47,39 @@ if submit_button and (uploaded_image or user_problem):
         )
 
         # Build message content
-       # ---- Build messages ----
-content_parts = [
-    {"type": "text", "text": """
-You are LocalFix AI. 
+        content_parts = [
+            {
+                "type": "text",
+                "text": """
+You are LocalFix AI.
 Analyze this input and respond in this format:
 
 Problem Summary: ...
 Suggested Fixer: ...
 Why: ...
-"""}
-]
+"""
+            }
+        ]
 
-if user_problem:
-    content_parts.append({"type": "text", "text": f"User description: {user_problem}"})
+        # Add user problem text if provided
+        if user_problem:
+            content_parts.append({"type": "text", "text": f"User description: {user_problem}"})
 
-if uploaded_image:
-    image_bytes = uploaded_image.read()
-    image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+        # Add image if uploaded
+        if uploaded_image:
+            image_bytes = uploaded_image.read()
+            image_b64 = base64.b64encode(image_bytes).decode("utf-8")
 
-    content_parts.append({
-        "type": "image",
-        "image_url": f"data:image/png;base64,{image_b64}"
-    })
+            content_parts.append({
+                "type": "image",
+                "image_url": f"data:image/png;base64,{image_b64}"
+            })
 
-messages = [HumanMessage(content=content_parts)]
-response = llm.invoke(messages)
+        # ✅ FIX — Use invoke(), not llm(messages)
+        messages = [HumanMessage(content=content_parts)]
+        response = llm.invoke(messages)
 
-wrapped_response = textwrap.fill(response.content, width=80)
+        wrapped_response = textwrap.fill(response.content, width=80)
 
     # ---- Display AI response ----
     st.markdown(f"""
@@ -80,6 +87,3 @@ wrapped_response = textwrap.fill(response.content, width=80)
         {wrapped_response.replace("Problem Summary", "<span class='highlight'>Problem Summary</span>").replace("Suggested Fixer", "<span class='highlight'>Suggested Fixer</span>").replace("Why", "<span class='highlight'>Why</span>")}
     </div>
     """, unsafe_allow_html=True)
-
-
-
