@@ -45,28 +45,34 @@ if submit_button and (uploaded_image or user_problem):
         )
 
         # Build message content
-        content_parts = [
-            {"type": "text", "text": """You are LocalFix AI. 
+       # ---- Build messages ----
+content_parts = [
+    {"type": "text", "text": """
+You are LocalFix AI. 
 Analyze this input and respond in this format:
 
 Problem Summary: ...
 Suggested Fixer: ...
-Why: ..."""}
-        ]
+Why: ...
+"""}
+]
 
-        # Add user problem text if provided
-        if user_problem:
-            content_parts.append({"type": "text", "text": f"User description: {user_problem}"})
+if user_problem:
+    content_parts.append({"type": "text", "text": f"User description: {user_problem}"})
 
-        # Add image if uploaded
-        if uploaded_image:
-            image_bytes = uploaded_image.read()
-            image_b64 = base64.b64encode(image_bytes).decode("utf-8")
-            content_parts.append({"type": "image_url", "image_url": f"data:image/png;base64,{image_b64}"})
+if uploaded_image:
+    image_bytes = uploaded_image.read()
+    image_b64 = base64.b64encode(image_bytes).decode("utf-8")
 
-        messages = [HumanMessage(content=content_parts)]
-        response = llm(messages)
-        wrapped_response = textwrap.fill(response.content, width=80)
+    content_parts.append({
+        "type": "image",
+        "image_url": f"data:image/png;base64,{image_b64}"
+    })
+
+messages = [HumanMessage(content=content_parts)]
+response = llm.invoke(messages)
+
+wrapped_response = textwrap.fill(response.content, width=80)
 
     # ---- Display AI response ----
     st.markdown(f"""
@@ -74,5 +80,6 @@ Why: ..."""}
         {wrapped_response.replace("Problem Summary", "<span class='highlight'>Problem Summary</span>").replace("Suggested Fixer", "<span class='highlight'>Suggested Fixer</span>").replace("Why", "<span class='highlight'>Why</span>")}
     </div>
     """, unsafe_allow_html=True)
+
 
 
